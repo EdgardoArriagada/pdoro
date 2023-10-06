@@ -1,6 +1,6 @@
 use crate::request;
 use request::Request;
-use std::io::Read;
+use std::io::{Read, Write};
 use std::net::TcpListener;
 
 pub struct Server {
@@ -27,7 +27,11 @@ impl Server {
                         Ok(_) => {
                             println!("Received a request: {}", String::from_utf8_lossy(&buffer));
                             match Request::try_from(&buffer[..]) {
-                                Ok(request) => println!("Here is the request: {}", request),
+                                Ok(request) => {
+                                    println!("Here is the request: {}", request);
+
+                                    write!(stream, "HTTP/1.1 200 OK\r\n\r\n");
+                                }
                                 Err(e) => println!("Failed to parse a request: {}", e),
                             }
                         }
