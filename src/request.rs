@@ -29,7 +29,7 @@ impl<'buf> TryFrom<&'buf [u8]> for Request<'buf> {
     fn try_from(buf: &'buf [u8]) -> Result<Request<'buf>, Self::Error> {
         let request = str::from_utf8(buf).map_err(|_| "Invalid request")?;
 
-        let (path, arg) = get_next_word(&request).ok_or("Invalid request")?;
+        let (path, arg) = parse_request(&request).ok_or("Invalid request")?;
 
         match arg {
             Some(arg) => Ok(Self {
@@ -41,8 +41,8 @@ impl<'buf> TryFrom<&'buf [u8]> for Request<'buf> {
     }
 }
 
-fn get_next_word(request: &str) -> Option<(&str, Option<&str>)> {
-    for (i, c) in request.chars().enumerate() {
+fn parse_request(request: &str) -> Option<(&str, Option<&str>)> {
+    for (i, c) in request.trim().chars().enumerate() {
         if c == ' ' || c == '\r' {
             return Some((&request[..i], Some(&request[i + 1..])));
         }
