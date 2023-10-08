@@ -5,7 +5,8 @@ use std::str;
 #[derive(Debug)]
 pub struct Request<'buf> {
     path: &'buf str,
-    arg: Option<&'buf str>,
+    arg1: Option<&'buf str>,
+    arg2: Option<&'buf str>,
 }
 
 impl<'buf> Display for Request<'buf> {
@@ -16,8 +17,11 @@ impl<'buf> Display for Request<'buf> {
 
 impl<'buf> Request<'buf> {
     pub fn display(&self) -> String {
-        match self.arg {
-            Some(arg) => format!("path: {}, arg: {}", self.path, arg),
+        match self.arg1 {
+            Some(arg1) => match self.arg2 {
+                Some(arg2) => format!("path: {}, arg1: {}, arg2: {}", self.path, arg1, arg2),
+                None => format!("path: {}, arg1: {}", self.path, arg1),
+            },
             None => format!("path: {}", self.path),
         }
     }
@@ -29,24 +33,22 @@ impl<'buf> TryFrom<&'buf [u8]> for Request<'buf> {
     fn try_from(buf: &'buf [u8]) -> Result<Request<'buf>, Self::Error> {
         let request = str::from_utf8(buf).map_err(|_| "Invalid request")?;
 
-        let (path, arg) = parse_request(&request).ok_or("Invalid request")?;
+        let (path, arg1, arg2) = parse_request(&request).ok_or("Invalid request")?;
 
-        match arg {
-            Some(arg) => Ok(Self {
-                path,
-                arg: Some(arg),
-            }),
-            None => Ok(Self { path, arg: None }),
-        }
+        Ok(Self { path, arg1, arg2 })
     }
 }
 
-fn parse_request(request: &str) -> Option<(&str, Option<&str>)> {
-    for (i, c) in request.trim().chars().enumerate() {
-        if c == ' ' || c == '\r' {
-            return Some((&request[..i], Some(&request[i + 1..])));
-        }
-    }
+fn parse_request(request: &str) -> Option<(&str, Option<&str>, Option<&str>)> {
+    let mut parts = request.splitn(3, ' ');
 
-    Some((&request[..], None))
+    let path = parts.next().unwrap_or("");
+    let arg1 = parts.next().unwrap_or("");
+    let arg2 = parts.next().unwrap_or("");
+
+    match (arg1, arg2) {
+        ("", "") => Some((path, None, None)),
+        (arg1, "") => Some((path, Some(arg1), None)),
+        (arg1, arg2) => Some((path, Some(arg1), Some(arg2))),
+    }
 }
