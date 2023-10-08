@@ -17,12 +17,13 @@ impl<'buf> Display for Request<'buf> {
 
 impl<'buf> Request<'buf> {
     pub fn display(&self) -> String {
-        match self.arg1 {
-            Some(arg1) => match self.arg2 {
-                Some(arg2) => format!("path: {}, arg1: {}, arg2: {}", self.path, arg1, arg2),
-                None => format!("path: {}, arg1: {}", self.path, arg1),
-            },
-            None => format!("path: {}", self.path),
+        match (self.arg1, self.arg2) {
+            (Some(arg1), Some(arg2)) => {
+                format!("path: {}, arg1: {}, arg2: {}", self.path, arg1, arg2)
+            }
+            (Some(arg1), None) => format!("path: {}, arg1: {}", self.path, arg1),
+            (None, None) => format!("path: {}", self.path),
+            _ => unreachable!(),
         }
     }
 }
