@@ -21,9 +21,9 @@ static IP: &'static str = "127.0.0.1:3030";
 fn main() {
     let args = Args::parse();
     println!("le args: {:?}", args);
+        let client = Client::new(IP);
 
     if args.remaining {
-        let client = Client::new(IP);
 
         return match client.run("remaining;") {
             Ok(v) => stdout(&v),
@@ -31,7 +31,6 @@ fn main() {
         };
     }
 
-    let client = Client::new(IP);
 
     match client.run("healthcheck;") {
         Ok(v) => stdout(&v),
