@@ -12,7 +12,7 @@ pub struct TCPHandler;
 
 impl Handler for TCPHandler {
     fn handle_request(&self, request: &Request) -> Response {
-        match request.path().trim() {
+        match request.path() {
             "healthcheck" => Response::new(StatusCode::Ok, Some("I'm alive".to_string())),
             "start" => start_pomodoro(request),
             "remaining" => remaining_pomodoro(),

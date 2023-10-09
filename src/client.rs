@@ -22,8 +22,8 @@ impl Client {
         }
     }
 
-    pub fn run(self, path: &str) -> Result<String, ClientError> {
-        match TcpStream::connect(self.addr) {
+    pub fn run(&self, path: &str) -> Result<String, ClientError> {
+        match TcpStream::connect(&self.addr) {
             Ok(mut stream) => {
                 if let Err(_) = stream.write(path.as_bytes()) {
                     return Err(ClientError::WriteError);

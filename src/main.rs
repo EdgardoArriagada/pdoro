@@ -62,11 +62,11 @@ fn get_start_request(time_arg: &str) -> String {
 }
 
 fn try_run_cmd(client: &Client, args: &Args) {
-    match client.clone().run("healthcheck;") {
+    match client.run("healthcheck;") {
         Ok(_) => match args.time.to_owned() {
             Some(time_arg) => {
                 let start_request = get_start_request(&time_arg);
-                match client.clone().run(start_request.as_str()) {
+                match client.run(start_request.as_str()) {
                     Ok(_) => stdout("Pomodoro timer started."),
                     Err(e) => stderr(format!("Error: {:?}", e).as_str()),
                 }
