@@ -1,16 +1,26 @@
 mod args;
+mod client;
 mod server;
 
 use args::Args;
 use clap::Parser;
 
-// use server::tcp_handler::TCPHandler;
-// use server::Server;
+use client::Client;
+use server::tcp_handler::TCPHandler;
+use server::Server;
+
+static IP: &'static str = "127.0.0.1:3030";
 
 fn main() {
     let args = Args::parse();
     println!("le args: {:?}", args);
 
-    // let server = Server::new("127.0.0.1:3030");
-    // server.run(TCPHandler);
+    if args.remaining {
+        let client = Client::new(IP);
+        client.run();
+        return;
+    }
+
+    let server = Server::new(IP);
+    server.run(TCPHandler);
 }

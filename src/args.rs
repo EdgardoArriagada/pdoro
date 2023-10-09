@@ -6,7 +6,7 @@ use clap::Parser;
 pub struct Args {
     /// time duration of session
     #[clap(long, short)]
-    pub time: String,
+    pub time: Option<String>,
 
     /// message to display
     #[clap(long, short)]
