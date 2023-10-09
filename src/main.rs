@@ -20,7 +20,6 @@ static IP: &'static str = "127.0.0.1:3030";
 
 fn main() {
     let args = Args::parse();
-    println!("le args: {:?}", args);
     let client = Client::new(IP);
 
     if args.remaining {
@@ -31,13 +30,6 @@ fn main() {
                     Some(i) => &digits[..i],
                     None => digits,
                 };
-
-                if digits.starts_with("\0") {
-                    // return stderr(format!("Error: {:?}", &v).as_str());
-                    return stderr("bad response");
-                }
-
-                println!("le digits: {:?}", digits);
 
                 let seconds = digits.parse::<u32>().unwrap();
                 let clock = get_clock_from_seconds(&seconds);

@@ -82,7 +82,6 @@ pub fn get_seconds_from_fromat(time: Time) -> u32 {
 }
 
 pub fn get_clock_from_seconds(seconds: &u32) -> String {
-    println!("le seconds: {:?}", seconds);
     let hours = seconds / 60 / 60;
     let minutes = seconds / 60 % 60;
     let seconds = seconds % 60;
