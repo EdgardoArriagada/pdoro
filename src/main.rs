@@ -31,6 +31,14 @@ fn main() {
                     Some(i) => &digits[..i],
                     None => digits,
                 };
+
+                if digits.starts_with("\0") {
+                    // return stderr(format!("Error: {:?}", &v).as_str());
+                    return stderr("bad response");
+                }
+
+                println!("le digits: {:?}", digits);
+
                 let seconds = digits.parse::<u32>().unwrap();
                 let clock = get_clock_from_seconds(&seconds);
                 stdout(&clock)
