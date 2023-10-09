@@ -48,6 +48,11 @@ impl<'buf> TryFrom<&'buf [u8]> for Request<'buf> {
     fn try_from(buf: &'buf [u8]) -> Result<Request<'buf>, Self::Error> {
         let request = str::from_utf8(buf).map_err(|_| "Invalid request")?;
 
+        let request = match request.rfind(";") {
+            Some(index) => &request[..index],
+            None => Err("Request not terminated by ';' char".to_string())?,
+        };
+
         let (path, arg1, arg2) = parse_request(&request).ok_or("Invalid request")?;
 
         Ok(Self { path, arg1, arg2 })
