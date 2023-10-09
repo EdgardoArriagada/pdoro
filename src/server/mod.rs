@@ -1,7 +1,6 @@
-use crate::request;
-use crate::response::Response;
-use crate::status_code::StatusCode;
 use request::Request;
+use response::Response;
+use status_code::StatusCode;
 use std::io::Read;
 use std::net::TcpListener;
 
@@ -52,3 +51,8 @@ impl Server {
         }
     }
 }
+
+pub mod request;
+pub mod response;
+pub mod status_code;
+pub mod tcp_handler;

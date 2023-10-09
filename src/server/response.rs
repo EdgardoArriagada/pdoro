@@ -1,6 +1,6 @@
 use std::io::{Result as IoResult, Write};
 
-use crate::status_code::StatusCode;
+use super::status_code::StatusCode;
 
 #[derive(Debug)]
 pub struct Response {
