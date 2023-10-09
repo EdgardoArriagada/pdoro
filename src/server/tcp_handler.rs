@@ -15,13 +15,21 @@ impl Handler for TCPHandler {
         match request.path() {
             "healthcheck" => Response::new(StatusCode::Ok, Some("I'm alive".to_string())),
             "start" => start_pomodoro(request),
+            "halt-counter" => halt_counter(),
             "remaining" => remaining_pomodoro(),
             _ => Response::new(StatusCode::NotFound, Some("Path not found".to_string())),
         }
     }
 }
 
+enum CounterState {
+    Pristine,
+    Running,
+    Halting,
+}
+
 static REMAINING_TIME: RwLock<i32> = RwLock::new(0);
+static COUNTER_STATE: RwLock<CounterState> = RwLock::new(CounterState::Pristine);
 
 fn start_pomodoro(request: &Request) -> Response {
     let raw_seconds = match request.arg1() {
@@ -44,9 +52,30 @@ fn start_pomodoro(request: &Request) -> Response {
         }
     };
 
+    match COUNTER_STATE.try_read() {
+        Ok(cs) => match *cs {
+            CounterState::Running => {
+                return Response::new(
+                    StatusCode::Conflict,
+                    Some("Pomodoro already running".to_string()),
+                )
+            }
+            _ => {}
+        },
+        Err(_) => {
+            return Response::new(
+                StatusCode::InternalServerError,
+                Some("Failed to read counter state".to_string()),
+            )
+        }
+    }
+
     {
         let mut rt = REMAINING_TIME.write().unwrap();
         *rt = seconds;
+
+        let mut cs = COUNTER_STATE.write().unwrap();
+        *cs = CounterState::Running;
     }
 
     thread::spawn(move || {
@@ -54,12 +83,23 @@ fn start_pomodoro(request: &Request) -> Response {
             sleep(1);
             {
                 let mut rt = REMAINING_TIME.write().unwrap();
-                *rt = i;
+                let mut cs = COUNTER_STATE.write().unwrap();
+
+                match *cs {
+                    CounterState::Halting => {
+                        *rt = 0;
+                        *cs = CounterState::Pristine;
+                        return;
+                    }
+                    _ => {
+                        *rt = i;
+                    }
+                }
             }
         }
     });
 
-    return Response::new(StatusCode::Ok, Some("Pomodoro started".to_string()));
+    return Response::new(StatusCode::Created, Some("Pomodoro started".to_string()));
 }
 
 fn remaining_pomodoro() -> Response {
@@ -73,4 +113,13 @@ fn remaining_pomodoro() -> Response {
             Err(_) => sleep(1),
         };
     }
+}
+
+fn halt_counter() -> Response {
+    {
+        let mut cs = COUNTER_STATE.write().unwrap();
+        *cs = CounterState::Halting;
+    }
+
+    return Response::new(StatusCode::Ok, Some("Pomodoro counter halting".to_string()));
 }
