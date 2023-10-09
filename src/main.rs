@@ -21,19 +21,23 @@ static IP: &'static str = "127.0.0.1:3030";
 fn main() {
     let args = Args::parse();
     println!("le args: {:?}", args);
-        let client = Client::new(IP);
+    let client = Client::new(IP);
 
     if args.remaining {
-
         return match client.run("remaining;") {
             Ok(v) => stdout(&v),
+            Err(ClientError::ServerNotStarted) => stderr("No pomodoro timer is running."),
             Err(e) => stderr(format!("Error: {:?}", e).as_str()),
         };
     }
 
-
-    match client.run("healthcheck;") {
-        Ok(v) => stdout(&v),
+    match client.clone().run("healthcheck;") {
+        Ok(_) => {
+            match client.clone().run("start;") {
+                Ok(v) => stdout(&v),
+                Err(e) => stderr(format!("Error: {:?}", e).as_str()),
+            };
+        }
         Err(ClientError::ServerNotStarted) => {
             println!("Server not started, starting...");
             start_daemon_server();

@@ -10,6 +10,7 @@ pub enum ClientError {
     DecodeError,
 }
 
+#[derive(Clone)]
 pub struct Client {
     addr: String,
 }
