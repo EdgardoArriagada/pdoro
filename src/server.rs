@@ -31,7 +31,7 @@ impl Server {
         loop {
             match listener.accept() {
                 Ok((mut stream, _)) => {
-                    let mut buffer = [0; 1024];
+                    let mut buffer = [0 as u8; 1024];
                     match stream.read(&mut buffer) {
                         Ok(_) => {
                             let response = match Request::try_from(&buffer[..]) {

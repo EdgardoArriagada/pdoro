@@ -2,6 +2,14 @@ use std::io::{Read, Write};
 use std::net::TcpStream;
 use std::str::from_utf8;
 
+#[derive(Debug)]
+pub enum ClientError {
+    ServerNotStarted,
+    ReadError,
+    WriteError,
+    DecodeError,
+}
+
 pub struct Client {
     addr: String,
 }
@@ -13,34 +21,26 @@ impl Client {
         }
     }
 
-    pub fn run(self) {
+    pub fn run(self, path: &str) -> Result<String, ClientError> {
         match TcpStream::connect(self.addr) {
             Ok(mut stream) => {
-                println!("Successfully connected to server in port 3333");
+                if let Err(_) = stream.write(path.as_bytes()) {
+                    return Err(ClientError::WriteError);
+                }
 
-                let msg = b"Hello!";
-
-                stream.write(msg).unwrap();
-                println!("Sent Hello, awaiting reply...");
-
-                let mut data = [0 as u8; 6]; // using 6 byte buffer
-                match stream.read_exact(&mut data) {
-                    Ok(_) => {
-                        if &data == msg {
-                            println!("Reply is ok!");
-                        } else {
-                            let text = from_utf8(&data).unwrap();
-                            println!("Unexpected reply: {}", text);
-                        }
-                    }
+                let mut data = [0 as u8; 1024];
+                match stream.read(&mut data) {
+                    Ok(_) => match from_utf8(&data) {
+                        Ok(v) => return Ok(v.to_string()),
+                        Err(_) => return Err(ClientError::DecodeError),
+                    },
                     Err(e) => {
-                        println!("Failed to receive data: {}", e);
+                        println!("le e: {:?}", e);
+                        Err(ClientError::ReadError)
                     }
                 }
             }
-            Err(e) => {
-                println!("Failed to connect: {}", e);
-            }
+            Err(_) => Err(ClientError::ServerNotStarted),
         }
     }
 }

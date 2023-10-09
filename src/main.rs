@@ -1,3 +1,4 @@
+mod app_io;
 mod args;
 mod client;
 mod server;
@@ -5,6 +6,7 @@ mod server;
 use args::Args;
 use clap::Parser;
 
+use app_io::{stderr, stdout};
 use client::Client;
 use server::tcp_handler::TCPHandler;
 use server::Server;
@@ -17,8 +19,11 @@ fn main() {
 
     if args.remaining {
         let client = Client::new(IP);
-        client.run();
-        return;
+
+        return match client.run("remaining;") {
+            Ok(v) => stdout(&v),
+            Err(e) => stderr(format!("Error: {:?}", e).as_str()),
+        };
     }
 
     let server = Server::new(IP);
