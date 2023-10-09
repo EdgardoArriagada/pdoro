@@ -33,14 +33,38 @@ fn main() {
 
                 let seconds = digits.parse::<u32>().unwrap();
                 let clock = get_clock_from_seconds(&seconds);
-                stdout(&clock)
+
+                match clock.as_str() {
+                    "00" => stdout("No pomodoro timer is running."),
+                    _ => stdout(&clock),
+                }
             }
             Err(ClientError::ServerNotStarted) => stderr("No pomodoro timer is running."),
             Err(e) => stderr(format!("Error: {:?}", e).as_str()),
         };
     }
 
-    try_run_cmd(&client, &args);
+    if args.start {
+        match client.run("healthcheck;") {
+            Ok(_) => return stderr("Pomodoro server already running."),
+            Err(ClientError::ServerNotStarted) => {
+                println!("starting...");
+                start_daemon_server()
+            }
+            Err(e) => return stderr(format!("Error: {:?}", e).as_str()),
+        }
+    }
+
+    if let Some(time) = args.time {
+        let start_request = get_start_request(&time);
+        match client.run(start_request.as_str()) {
+            Ok(_) => return stdout("Pomodoro timer started."),
+            Err(ClientError::ServerNotStarted) => stderr("Server not started yet."),
+            Err(e) => return stderr(format!("Error: {:?}", e).as_str()),
+        }
+    }
+
+    stderr("No arguments provided.");
 }
 
 fn get_start_request(time_arg: &str) -> String {
@@ -51,26 +75,6 @@ fn get_start_request(time_arg: &str) -> String {
     }
 
     format!("start {};", seconds)
-}
-
-fn try_run_cmd(client: &Client, args: &Args) {
-    match client.run("healthcheck;") {
-        Ok(_) => match args.time.to_owned() {
-            Some(time_arg) => {
-                let start_request = get_start_request(&time_arg);
-                match client.run(start_request.as_str()) {
-                    Ok(_) => stdout("Pomodoro timer started."),
-                    Err(e) => stderr(format!("Error: {:?}", e).as_str()),
-                }
-            }
-            _ => stderr("No time specified."),
-        },
-        Err(ClientError::ServerNotStarted) => {
-            println!("Server not started, starting...");
-            start_daemon_server()
-        }
-        Err(e) => stderr(format!("Error: {:?}", e).as_str()),
-    };
 }
 
 fn start_daemon_server() {

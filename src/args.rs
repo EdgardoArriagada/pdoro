@@ -15,4 +15,8 @@ pub struct Args {
     /// remaining duration of session
     #[clap(long, short)]
     pub remaining: bool,
+
+    /// start pdoro sercer
+    #[clap(long, short)]
+    pub start: bool,
 }
