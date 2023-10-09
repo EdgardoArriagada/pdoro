@@ -1,12 +1,12 @@
+use crate::utils::sleep;
+
 use super::request::Request;
 use super::response::Response;
 use super::status_code::StatusCode;
 use super::Handler;
 
 use std::sync::RwLock;
-
 use std::thread;
-use std::time::Duration;
 
 pub struct TCPHandler;
 
@@ -21,10 +21,6 @@ impl Handler for TCPHandler {
     }
 }
 
-fn sleep(secs: u64) {
-    thread::sleep(Duration::from_secs(secs))
-}
-
 static REMAINING_TIME: RwLock<i32> = RwLock::new(0);
 
 fn start_pomodoro(request: &Request) -> Response {
@@ -33,7 +29,7 @@ fn start_pomodoro(request: &Request) -> Response {
         *rt = 10;
     }
 
- thread::spawn(|| {
+    thread::spawn(|| {
         for i in (0..10).rev() {
             sleep(1);
             {

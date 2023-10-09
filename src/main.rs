@@ -1,6 +1,6 @@
 use std::fs::File;
 
-mod app_io;
+mod utils;
 mod args;
 mod client;
 mod server;
@@ -9,7 +9,7 @@ use args::Args;
 use clap::Parser;
 use daemonize::Daemonize;
 
-use app_io::{stderr, stdout};
+use utils::{stderr, stdout};
 use client::Client;
 use server::tcp_handler::TCPHandler;
 use server::Server;
