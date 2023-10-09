@@ -28,6 +28,20 @@ impl<'buf> Request<'buf> {
     }
 }
 
+impl<'buf> Request<'buf> {
+    pub fn path(&self) -> &str {
+        &self.path
+    }
+
+    pub fn arg1(&self) -> Option<&str> {
+        self.arg1
+    }
+
+    pub fn arg2(&self) -> Option<&str> {
+        self.arg2
+    }
+}
+
 impl<'buf> TryFrom<&'buf [u8]> for Request<'buf> {
     type Error = String;
 
