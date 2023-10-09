@@ -63,6 +63,14 @@ fn start_pomodoro(request: &Request) -> Response {
 }
 
 fn remaining_pomodoro() -> Response {
-    let remaining = REMAINING_TIME.read().unwrap();
-    return Response::new(StatusCode::Ok, Some(format!("{};", remaining)));
+    loop {
+        match REMAINING_TIME.try_read() {
+            Ok(rt) => {
+                let rt = *rt;
+
+                return Response::new(StatusCode::Ok, Some(rt.to_string()));
+            }
+            Err(_) => sleep(1),
+        };
+    }
 }
