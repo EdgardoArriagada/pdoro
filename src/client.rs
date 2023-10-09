@@ -22,17 +22,17 @@ impl Client {
         }
     }
 
-    pub fn run(&self, path: &str) -> Result<String, ClientError> {
+    pub fn run(&self, request_line: &str) -> Result<String, ClientError> {
         match TcpStream::connect(&self.addr) {
             Ok(mut stream) => {
-                if let Err(_) = stream.write(path.as_bytes()) {
+                if let Err(_) = stream.write(request_line.as_bytes()) {
                     return Err(ClientError::WriteError);
                 }
 
-                let mut data = [0 as u8; 1024];
-                match stream.read(&mut data) {
+                let mut data = Vec::new();
+                match stream.read_to_end(&mut data) {
                     Ok(_) => match from_utf8(&data) {
-                        Ok(v) => return Ok(v.to_string()),
+                        Ok(v) => Ok(v.to_string()),
                         Err(_) => return Err(ClientError::DecodeError),
                     },
                     Err(e) => {
