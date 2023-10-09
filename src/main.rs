@@ -14,7 +14,7 @@ use server::tcp_handler::TCPHandler;
 use server::Server;
 use utils::{get_seconds_from_fromat, get_time_format, stderr, stdout};
 
-use crate::client::ClientError;
+use crate::{client::ClientError, utils::get_clock_from_seconds};
 
 static IP: &'static str = "127.0.0.1:3030";
 
@@ -25,7 +25,16 @@ fn main() {
 
     if args.remaining {
         return match client.run("remaining;") {
-            Ok(v) => stdout(&v),
+            Ok(v) => {
+                let digits = &v[4..];
+                let digits = match digits.rfind(";") {
+                    Some(i) => &digits[..i],
+                    None => digits,
+                };
+                let seconds = digits.parse::<u32>().unwrap();
+                let clock = get_clock_from_seconds(&seconds);
+                stdout(&clock)
+            }
             Err(ClientError::ServerNotStarted) => stderr("No pomodoro timer is running."),
             Err(e) => stderr(format!("Error: {:?}", e).as_str()),
         };

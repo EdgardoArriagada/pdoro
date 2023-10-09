@@ -15,7 +15,7 @@ impl Handler for TCPHandler {
         match request.path().trim() {
             "healthcheck" => Response::new(StatusCode::Ok, Some("I'm alive".to_string())),
             "start" => start_pomodoro(request),
-            "remaining" => remaining_pomodoro(request),
+            "remaining" => remaining_pomodoro(),
             _ => Response::new(StatusCode::NotFound, Some("Path not found".to_string())),
         }
     }
@@ -62,7 +62,7 @@ fn start_pomodoro(request: &Request) -> Response {
     return Response::new(StatusCode::Ok, Some("Pomodoro started".to_string()));
 }
 
-fn remaining_pomodoro(request: &Request) -> Response {
+fn remaining_pomodoro() -> Response {
     let remaining = REMAINING_TIME.read().unwrap();
-    return Response::new(StatusCode::Ok, Some(remaining.to_string()));
+    return Response::new(StatusCode::Ok, Some(format!("{};", remaining)));
 }

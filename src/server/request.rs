@@ -49,7 +49,7 @@ impl<'buf> TryFrom<&'buf [u8]> for Request<'buf> {
         let request = str::from_utf8(buf).map_err(|_| "Invalid request")?;
 
         let request = match request.rfind(";") {
-            Some(index) => &request[..index],
+            Some(i) => &request[..i],
             None => Err("Request not terminated by ';' char".to_string())?,
         };
 
