@@ -12,7 +12,7 @@ use daemonize::Daemonize;
 use client::Client;
 use server::tcp_handler::TCPHandler;
 use server::Server;
-use utils::{stderr, stdout};
+use utils::{get_seconds_from_fromat, get_time_format, stderr, stdout};
 
 use crate::client::ClientError;
 
@@ -34,14 +34,28 @@ fn main() {
     try_run_cmd(&client, &args);
 }
 
+fn get_start_request(time_arg: &str) -> String {
+    let seconds = get_seconds_from_fromat(get_time_format(time_arg));
+
+    if seconds == 0 {
+        stderr("Invalid time format.");
+    }
+
+    format!("start {};", seconds)
+}
+
 fn try_run_cmd(client: &Client, args: &Args) {
     match client.clone().run("healthcheck;") {
-        Ok(_) => {
-            match client.clone().run("start;") {
-                Ok(v) => stdout(&v),
-                Err(e) => stderr(format!("Error: {:?}", e).as_str()),
-            };
-        }
+        Ok(_) => match args.time.to_owned() {
+            Some(time_arg) => {
+                let start_request = get_start_request(&time_arg);
+                match client.clone().run(start_request.as_str()) {
+                    Ok(_) => stdout("Pomodoro timer started."),
+                    Err(e) => stderr(format!("Error: {:?}", e).as_str()),
+                }
+            }
+            _ => stderr("No time specified."),
+        },
         Err(ClientError::ServerNotStarted) => {
             println!("Server not started, starting...");
             start_daemon_server()

@@ -24,13 +24,33 @@ impl Handler for TCPHandler {
 static REMAINING_TIME: RwLock<i32> = RwLock::new(0);
 
 fn start_pomodoro(request: &Request) -> Response {
+    let raw_seconds = match request.arg1() {
+        Some(s) => s,
+        None => {
+            return Response::new(
+                StatusCode::BadRequest,
+                Some("No time specified".to_string()),
+            )
+        }
+    };
+
+    let seconds = match raw_seconds.parse::<i32>() {
+        Ok(s) => s,
+        Err(_) => {
+            return Response::new(
+                StatusCode::BadRequest,
+                Some("Invalid time format".to_string()),
+            )
+        }
+    };
+
     {
         let mut rt = REMAINING_TIME.write().unwrap();
-        *rt = 10;
+        *rt = seconds;
     }
 
-    thread::spawn(|| {
-        for i in (0..10).rev() {
+    thread::spawn(move || {
+        for i in (0..seconds).rev() {
             sleep(1);
             {
                 let mut rt = REMAINING_TIME.write().unwrap();
