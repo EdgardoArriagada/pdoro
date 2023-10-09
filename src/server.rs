@@ -25,7 +25,7 @@ impl Server {
         }
     }
 
-    pub fn run(self,  handler: impl Handler) {
+    pub fn run(self, handler: impl Handler) {
         println!("Listening on {}", self.addr);
 
         let listener = TcpListener::bind(&self.addr).expect("Failed to bind address");
