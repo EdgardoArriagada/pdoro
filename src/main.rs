@@ -93,7 +93,11 @@ fn main() {
 
     if args.resume_counter {
         match client.run("resume-counter;") {
-            Ok(_) => return stdout("Pomodoro timer resumed."),
+            Ok(res) => match get_status(&res) {
+                409 => return stdout("Nothing to resume."),
+                200 => return stdout("Pomodoro timer resumed."),
+                _ => return stderr("Unknown error."),
+            },
             Err(ClientError::ServerNotStarted) => stderr("No pomodoro timer is running."),
             Err(e) => return stderr(format!("Error: {:?}", e).as_str()),
         }
