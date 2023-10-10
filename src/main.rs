@@ -103,6 +103,18 @@ fn main() {
         }
     }
 
+    if args.pause_resume_counter {
+        match client.run("pause-resume-counter;") {
+            Ok(res) => match get_status(&res) {
+                409 => return stdout("Conflict to pause/resume."),
+                200 => return stdout("Pomosoro paused/resumed."),
+                _ => return stderr("Unknown error."),
+            },
+            Err(ClientError::ServerNotStarted) => stderr("No pomodoro timer is running."),
+            Err(e) => return stderr(format!("Error: {:?}", e).as_str()),
+        }
+    }
+
     stderr("No arguments provided.");
 }
 

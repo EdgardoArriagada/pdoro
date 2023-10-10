@@ -19,6 +19,7 @@ impl Handler for TCPHandler {
             "pause-counter" => pause_counter(),
             "remaining" => remaining_pomodoro(),
             "resume-counter" => resume_counter(),
+            "pause-resume-counter" => pause_resume_counter(),
             _ => Response::new(StatusCode::NotFound, Some("Path not found".to_string())),
         }
     }
@@ -161,6 +162,28 @@ fn resume_counter() -> Response {
             }
             _ => {
                 return Response::new(StatusCode::Conflict, Some("nothing to resume.".to_string()))
+            }
+        }
+    }
+}
+
+fn pause_resume_counter() -> Response {
+    {
+        let mut cs = COUNTER_STATE.write().unwrap();
+        match *cs {
+            CounterState::Running => {
+                *cs = CounterState::Paused;
+                return Response::new(StatusCode::Ok, Some("Pomodoro counter paused".to_string()));
+            }
+            CounterState::Paused => {
+                *cs = CounterState::Running;
+                return Response::new(StatusCode::Ok, Some("Pomodoro counter resumed".to_string()));
+            }
+            _ => {
+                return Response::new(
+                    StatusCode::Conflict,
+                    Some("nothing to pause/resume.".to_string()),
+                )
             }
         }
     }
