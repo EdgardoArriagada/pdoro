@@ -79,29 +79,7 @@ fn main() {
         }
     }
 
-    if args.pause_counter {
-        match client.run("pause-counter;") {
-            Ok(red) => match get_status(&red) {
-                409 => return stdout("Nothing to pause."),
-                200 => return stdout("Pomodoro timer paused."),
-                _ => return stderr("Unknown error."),
-            },
-            Err(ClientError::ServerNotStarted) => stderr("No pomodoro timer is running."),
-            Err(e) => return stderr(format!("Error: {:?}", e).as_str()),
-        }
-    }
 
-    if args.resume_counter {
-        match client.run("resume-counter;") {
-            Ok(res) => match get_status(&res) {
-                409 => return stdout("Nothing to resume."),
-                200 => return stdout("Pomodoro timer resumed."),
-                _ => return stderr("Unknown error."),
-            },
-            Err(ClientError::ServerNotStarted) => stderr("No pomodoro timer is running."),
-            Err(e) => return stderr(format!("Error: {:?}", e).as_str()),
-        }
-    }
 
     if args.pause_resume_counter {
         match client.run("pause-resume-counter;") {
