@@ -93,10 +93,6 @@ fn main() {
     stderr("No arguments provided.");
 }
 
-fn get_status(res: &str) -> u16 {
-    res[0..3].parse::<u16>().unwrap()
-}
-
 fn get_start_request(time_arg: &str) -> String {
     let seconds = get_seconds_from_fromat(get_time_format(time_arg));
 

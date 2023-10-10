@@ -68,7 +68,7 @@ impl Client {
                         Ok(raw_res) => Ok(Res::new(raw_res)),
                         Err(_) => return Err(ClientError::DecodeError),
                     },
-                    Err(e) => Err(ClientError::ReadError),
+                    Err(_) => Err(ClientError::ReadError),
                 }
             }
             Err(_) => Err(ClientError::ServerNotStarted),
