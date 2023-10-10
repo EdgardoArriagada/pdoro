@@ -18,7 +18,7 @@ impl Handler for TCPHandler {
             "halt-counter" => halt_counter(),
             "pause-counter" => pause_counter(),
             "remaining" => remaining_pomodoro(),
-            "resume" => resume_counter(),
+            "resume-counter" => resume_counter(),
             _ => Response::new(StatusCode::NotFound, Some("Path not found".to_string())),
         }
     }
