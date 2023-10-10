@@ -109,7 +109,7 @@ fn start_pomodoro(request: &Request) -> Response {
                     }
                 }
 
-                if i <= 0 {
+                if i <= 1 {
                     *cs = CounterState::Pristine;
                     break;
                 }
