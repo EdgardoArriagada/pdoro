@@ -20,7 +20,15 @@ pub struct Args {
     #[clap(long, short)]
     pub start_server: bool,
 
-    /// stop pomodoro counter
+    /// halt pomodoro counter
     #[clap(long)]
     pub halt_counter: bool,
+
+    /// pause pomodoro counter
+    #[clap(long, short)]
+    pub pause_counter: bool,
+
+    /// resume pomodoro counter
+    #[clap(long)]
+    pub resume_counter: bool,
 }

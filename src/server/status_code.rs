@@ -4,6 +4,7 @@ use std::fmt::{Display, Formatter, Result as FmtResult};
 pub enum StatusCode {
     Ok = 200,
     Created = 201,
+    NotModified = 304,
     BadRequest = 400,
     NotFound = 404,
     Conflict = 409,
