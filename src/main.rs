@@ -25,18 +25,16 @@ fn main() {
     if args.remaining {
         return match client.run("remaining;") {
             Ok(res) => {
-                let status = get_status(&res);
+                let digits = res.msg();
 
-                let digits = &res[4..];
-                let digits = match digits.rfind(";") {
-                    Some(i) => &digits[..i],
-                    None => digits,
-                };
+                if digits.is_empty() {
+                    return stdout("No pomodoro timer is running.");
+                }
 
                 let seconds = digits.parse::<u32>().unwrap();
                 let clock = get_clock_from_seconds(&seconds);
 
-                match (clock.as_str(), status) {
+                match (clock.as_str(), res.status()) {
                     ("00", _) => stdout("No pomodoro timer is running."),
                     (_, 304) => stdout(format!("{} (paused)", &clock).as_str()),
                     _ => stdout(&clock),
@@ -61,10 +59,9 @@ fn main() {
     if let Some(time) = args.time {
         let start_request = get_start_request(&time);
         match client.run(start_request.as_str()) {
-            Ok(res) => match get_status(&res) {
-                201 => return stdout("Pomodoro timer started."),
-                409 => return stderr("Pomodoro timer already running."),
-                _ => return stderr("Unknown error."),
+            Ok(res) => match res.status() {
+                201 => return stdout(res.msg()),
+                _ => return stderr(res.msg()),
             },
             Err(ClientError::ServerNotStarted) => stderr("Server not started yet."),
             Err(e) => return stderr(format!("Error: {:?}", e).as_str()),
@@ -79,14 +76,11 @@ fn main() {
         }
     }
 
-
-
     if args.pause_resume_counter {
         match client.run("pause-resume-counter;") {
-            Ok(res) => match get_status(&res) {
-                409 => return stdout("Conflict to pause/resume."),
-                200 => return stdout("Pomosoro paused/resumed."),
-                _ => return stderr("Unknown error."),
+            Ok(res) => match res.status() {
+                200 => return stdout(res.msg()),
+                _ => return stderr(res.msg()),
             },
             Err(ClientError::ServerNotStarted) => stderr("No pomodoro timer is running."),
             Err(e) => return stderr(format!("Error: {:?}", e).as_str()),
