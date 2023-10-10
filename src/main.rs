@@ -70,7 +70,10 @@ fn main() {
 
     if args.halt_counter {
         match client.run("halt-counter;") {
-            Ok(_) => return stdout("Pomodoro timer stopped."),
+            Ok(res) => match res.status() {
+                200 => return stdout(res.msg()),
+                _ => return stderr(res.msg()),
+            },
             Err(ClientError::ServerNotStarted) => stderr("No pomodoro timer is running."),
             Err(e) => return stderr(format!("Error: {:?}", e).as_str()),
         }

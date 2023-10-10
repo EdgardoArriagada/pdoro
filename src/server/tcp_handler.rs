@@ -39,7 +39,7 @@ fn start_pomodoro(request: &Request) -> Response {
         None => {
             return Response::new(
                 StatusCode::BadRequest,
-                Some("No time specified".to_string()),
+                Some("No time specified.".to_string()),
             )
         }
     };
@@ -49,7 +49,7 @@ fn start_pomodoro(request: &Request) -> Response {
         Err(_) => {
             return Response::new(
                 StatusCode::BadRequest,
-                Some("Invalid time format".to_string()),
+                Some("Invalid time format.".to_string()),
             )
         }
     };
@@ -59,7 +59,7 @@ fn start_pomodoro(request: &Request) -> Response {
             CounterState::Running => {
                 return Response::new(
                     StatusCode::Conflict,
-                    Some("Pomodoro already running".to_string()),
+                    Some("Pomodoro already running.".to_string()),
                 )
             }
             _ => {}
@@ -67,7 +67,7 @@ fn start_pomodoro(request: &Request) -> Response {
         Err(_) => {
             return Response::new(
                 StatusCode::InternalServerError,
-                Some("Failed to read counter state".to_string()),
+                Some("Failed to read counter state.".to_string()),
             )
         }
     }
@@ -105,15 +105,16 @@ fn start_pomodoro(request: &Request) -> Response {
                         *rt = i;
                     }
                 }
-            }
 
-            if i <= 0 {
-                break;
+                if i <= 0 {
+                    *cs = CounterState::Pristine;
+                    break;
+                }
             }
         }
     });
 
-    return Response::new(StatusCode::Created, Some("Pomodoro started".to_string()));
+    return Response::new(StatusCode::Created, Some("Pomodoro started.".to_string()));
 }
 
 fn remaining_pomodoro() -> Response {
@@ -131,10 +132,25 @@ fn remaining_pomodoro() -> Response {
 fn halt_counter() -> Response {
     {
         let mut cs = COUNTER_STATE.write().unwrap();
-        *cs = CounterState::Halting;
+        match *cs {
+            CounterState::Halting => {
+                return Response::new(
+                    StatusCode::Conflict,
+                    Some("Pomodoro counter already halting...".to_string()),
+                )
+            }
+            CounterState::Pristine => {
+                return Response::new(StatusCode::Conflict, Some("Nothing to halt.".to_string()))
+            }
+            _ => {
+                *cs = CounterState::Halting;
+                return Response::new(
+                    StatusCode::Ok,
+                    Some("Pomodoro counter halting...".to_string()),
+                );
+            }
+        }
     }
-
-    return Response::new(StatusCode::Ok, Some("Pomodoro counter halting".to_string()));
 }
 
 fn pause_resume_counter() -> Response {
@@ -143,11 +159,14 @@ fn pause_resume_counter() -> Response {
         match *cs {
             CounterState::Running => {
                 *cs = CounterState::Paused;
-                return Response::new(StatusCode::Ok, Some("Pomodoro counter paused".to_string()));
+                return Response::new(StatusCode::Ok, Some("Pomodoro counter paused.".to_string()));
             }
             CounterState::Paused => {
                 *cs = CounterState::Running;
-                return Response::new(StatusCode::Ok, Some("Pomodoro counter resumed".to_string()));
+                return Response::new(
+                    StatusCode::Ok,
+                    Some("Pomodoro counter resumed.".to_string()),
+                );
             }
             _ => {
                 return Response::new(
