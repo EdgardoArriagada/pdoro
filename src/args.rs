@@ -8,6 +8,10 @@ pub struct Args {
     #[clap(long, short)]
     pub time: Option<String>,
 
+    /// callback program with message
+    #[clap(long, short)]
+    pub callback_with_args: Option<String>,
+
     /// message to display
     #[clap(long, short)]
     pub message: Option<String>,

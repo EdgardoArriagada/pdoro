@@ -56,16 +56,23 @@ fn main() {
         }
     }
 
-    if let Some(time) = args.time {
-        let start_request = get_start_request(&time);
-        match client.run(start_request.as_str()) {
-            Ok(res) => match res.status() {
-                201 => return stdout(res.msg()),
-                _ => return stderr(res.msg()),
-            },
-            Err(ClientError::ServerNotStarted) => stderr("Server not started yet."),
-            Err(e) => return stderr(format!("Error: {:?}", e).as_str()),
+    match (args.time, args.callback_with_args) {
+        (Some(_), None) | (None, Some(_)) => {
+            return stderr("Both time and callback_with_args must be provided.")
         }
+        (Some(time), Some(callback_with_args)) => {
+            let start_request = get_start_request(&time, &callback_with_args);
+
+            match client.run(start_request.as_str()) {
+                Ok(res) => match res.status() {
+                    201 => return stdout(res.msg()),
+                    _ => return stderr(res.msg()),
+                },
+                Err(ClientError::ServerNotStarted) => stderr("Server not started yet."),
+                Err(e) => return stderr(format!("Error: {:?}", e).as_str()),
+            }
+        }
+        _ => {}
     }
 
     if args.halt_counter {
@@ -93,14 +100,14 @@ fn main() {
     stderr("No arguments provided.");
 }
 
-fn get_start_request(time_arg: &str) -> String {
+fn get_start_request(time_arg: &str, callback_with_args: &str) -> String {
     let seconds = get_seconds_from_fromat(get_time_format(time_arg));
 
     if seconds == 0 {
         stderr("Invalid time format.");
     }
 
-    format!("start {};", seconds)
+    format!("start {} {};", seconds, callback_with_args)
 }
 
 fn start_daemon_server() {
