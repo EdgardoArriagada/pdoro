@@ -82,8 +82,12 @@ fn start_pomodoro(request: &Request) -> Response {
     }
 
     thread::spawn(move || {
-        for i in (0..seconds).rev() {
+        let mut i = seconds;
+
+        loop {
             sleep(1);
+            i -= 1;
+
             {
                 let mut rt = REMAINING_TIME.write().unwrap();
                 let mut cs = COUNTER_STATE.write().unwrap();
@@ -94,19 +98,18 @@ fn start_pomodoro(request: &Request) -> Response {
                         *cs = CounterState::Pristine;
                         return;
                     }
+                    CounterState::Paused => {
+                        i += 1;
+                        continue;
+                    }
                     _ => {
                         *rt = i;
                     }
                 }
             }
 
-            let cs = COUNTER_STATE.read().unwrap();
-
-            loop {
-                match *cs {
-                    CounterState::Paused => sleep(1),
-                    _ => break,
-                }
+            if i <= 0 {
+                break;
             }
         }
     });
