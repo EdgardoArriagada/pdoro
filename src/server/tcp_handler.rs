@@ -85,7 +85,11 @@ fn start_pomodoro(request: &Request) -> Response {
     }
 
     thread::spawn(move || {
-        let mut i = seconds - 1;
+        // prevent index from going below 0
+        let mut i = match seconds {
+            1 => 1,
+            _ => seconds - 1,
+        };
 
         loop {
             sleep(1);
