@@ -33,10 +33,10 @@ pub struct Args {
     pub pause_resume_counter: bool,
 
     /// validate time duration
-    #[clap(long, short)]
-    pub validate_time: Option<String>,
+    #[clap(long)]
+    pub is_valid_time: Option<String>,
 
     /// check if counter is running
-    #[clap(long, short)]
+    #[clap(long)]
     pub is_counter_running: bool,
 }

@@ -25,13 +25,13 @@ fn main() {
     let args = Args::parse();
     let client = Client::new(IP);
 
-    if let Some(time) = args.validate_time {
+    if let Some(time) = args.is_valid_time {
         match get_time_format(&time) {
             Time {
                 format: TimeFormat::Invalid,
                 ..
-            } => return stderr("Invalid time format."),
-            _ => return stdout("Valid time format."),
+            } => return stdout("false"),
+            _ => return stdout("true"),
         }
     }
 
