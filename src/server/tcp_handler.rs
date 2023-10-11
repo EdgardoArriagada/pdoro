@@ -85,7 +85,7 @@ fn start_pomodoro(request: &Request) -> Response {
     }
 
     thread::spawn(move || {
-        let mut i = seconds;
+        let mut i = seconds - 1;
 
         loop {
             sleep(1);
@@ -110,7 +110,7 @@ fn start_pomodoro(request: &Request) -> Response {
                     }
                 }
 
-                if i <= 1 {
+                if i <= 0 {
                     *cs = CounterState::Pristine;
                     break;
                 }
