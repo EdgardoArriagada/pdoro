@@ -110,6 +110,17 @@ fn main() {
         }
     }
 
+    if args.is_counter_running {
+        match client.run("is-counter-running;") {
+            Ok(res) => match res.status() {
+                100 => return stdout(res.msg()),
+                _ => return stderr(res.msg()),
+            },
+            Err(ClientError::ServerNotStarted) => stderr("No pomodoro timer is running."),
+            Err(e) => return stderr(format!("Error: {:?}", e).as_str()),
+        }
+    }
+
     stderr("No arguments provided.");
 }
 

@@ -18,6 +18,7 @@ impl Handler for TCPHandler {
             "start" => start_pomodoro(request),
             "halt-counter" => halt_counter(),
             "remaining" => remaining_pomodoro(),
+            "is-counter-running" => is_counter_running(),
             "pause-resume-counter" => pause_resume_counter(),
             _ => Response::new(StatusCode::NotFound, Some("Path not found".to_string())),
         }
@@ -197,5 +198,14 @@ fn pause_resume_counter() -> Response {
                 )
             }
         }
+    }
+}
+
+fn is_counter_running() -> Response {
+    let state = COUNTER_STATE.read().unwrap();
+
+    match *state {
+        CounterState::Pristine => Response::new(StatusCode::Continue, Some("false".to_string())),
+        _ => Response::new(StatusCode::Processing, Some("true".to_string())),
     }
 }

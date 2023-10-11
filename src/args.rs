@@ -35,4 +35,8 @@ pub struct Args {
     /// validate time duration
     #[clap(long, short)]
     pub validate_time: Option<String>,
+
+    /// check if counter is running
+    #[clap(long, short)]
+    pub is_counter_running: bool,
 }
