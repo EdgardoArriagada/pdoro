@@ -31,4 +31,8 @@ pub struct Args {
     /// toggle pause/resume pomodoro counter
     #[clap(long, short)]
     pub pause_resume_counter: bool,
+
+    /// validate time duration
+    #[clap(long, short)]
+    pub validate_time: Option<String>,
 }

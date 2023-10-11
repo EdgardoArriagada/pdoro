@@ -25,8 +25,8 @@ pub enum TimeFormat {
 }
 
 pub struct Time {
-    format: TimeFormat,
-    value: u32,
+    pub format: TimeFormat,
+    pub value: u32,
 }
 
 impl Time {

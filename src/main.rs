@@ -12,15 +12,28 @@ use daemonize::Daemonize;
 use client::Client;
 use server::tcp_handler::TCPHandler;
 use server::Server;
-use utils::{get_seconds_from_fromat, get_time_format, stderr, stdout};
+use utils::{get_seconds_from_fromat, get_time_format, stderr, stdout, Time};
 
-use crate::{client::ClientError, utils::get_clock_from_seconds};
+use crate::{
+    client::ClientError,
+    utils::{get_clock_from_seconds, TimeFormat},
+};
 
 static IP: &'static str = "127.0.0.1:3030";
 
 fn main() {
     let args = Args::parse();
     let client = Client::new(IP);
+
+    if let Some(time) = args.validate_time {
+        match get_time_format(&time) {
+            Time {
+                format: TimeFormat::Invalid,
+                ..
+            } => return stderr("Invalid time format."),
+            _ => return stdout("Valid time format."),
+        }
+    }
 
     if args.remaining {
         return match client.run("remaining;") {
