@@ -55,13 +55,13 @@ fn start_pomodoro(request: &Request) -> Response {
 
     match COUNTER_STATE.try_read() {
         Ok(cs) => match *cs {
-            CounterState::Running => {
+            CounterState::Pristine => {}
+            _ => {
                 return Response::new(
                     StatusCode::Conflict,
                     Some("Pomodoro already running.".to_string()),
                 )
             }
-            _ => {}
         },
         Err(_) => {
             return Response::new(
