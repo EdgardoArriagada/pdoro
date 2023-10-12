@@ -98,12 +98,12 @@ fn start_pomodoro(request: &Request) -> Response {
                 let cs = COUNTER_STATE.read().unwrap(); // read for better performance
 
                 match *cs {
-                    CounterState::Halting => {
-                        *rt = 0;
-                    }
                     CounterState::Paused => {
                         i += 1;
                         continue;
+                    }
+                    CounterState::Halting => {
+                        *rt = 0;
                     }
                     _ => {
                         *rt = i;

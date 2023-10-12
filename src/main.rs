@@ -23,7 +23,6 @@ static IP: &'static str = "127.0.0.1:3030";
 
 fn main() {
     let args = Args::parse();
-    let client = Client::new(IP);
 
     if let Some(time) = args.is_valid_time {
         match get_time_format(&time) {
@@ -36,7 +35,7 @@ fn main() {
     }
 
     if args.remaining {
-        return match client.run("remaining;") {
+        return match Client::new(IP).run("remaining;") {
             Ok(res) => {
                 let digits = res.msg();
 
@@ -59,7 +58,7 @@ fn main() {
     }
 
     if args.start_server {
-        match client.run("healthcheck;") {
+        match Client::new(IP).run("healthcheck;") {
             Ok(_) => return stderr("Pomodoro server already running."),
             Err(ClientError::ServerNotStarted) => {
                 println!("starting...");
@@ -70,13 +69,10 @@ fn main() {
     }
 
     match (args.time, args.callback_with_args) {
-        (Some(_), None) | (None, Some(_)) => {
-            return stderr("Both time and callback_with_args must be provided.")
-        }
         (Some(time), Some(callback_with_args)) => {
             let start_request = get_start_request(&time, &callback_with_args);
 
-            match client.run(start_request.as_str()) {
+            match Client::new(IP).run(start_request.as_str()) {
                 Ok(res) => match res.status() {
                     201 => return stdout(res.msg()),
                     _ => return stderr(res.msg()),
@@ -85,11 +81,14 @@ fn main() {
                 Err(e) => return stderr(format!("Error: {:?}", e).as_str()),
             }
         }
+        (Some(_), None) | (None, Some(_)) => {
+            return stderr("Both time and callback_with_args must be provided.")
+        }
         _ => {}
     }
 
     if args.halt_counter {
-        match client.run("halt-counter;") {
+        match Client::new(IP).run("halt-counter;") {
             Ok(res) => match res.status() {
                 200 => return stdout(res.msg()),
                 _ => return stderr(res.msg()),
@@ -100,7 +99,7 @@ fn main() {
     }
 
     if args.pause_resume_counter {
-        match client.run("pause-resume-counter;") {
+        match Client::new(IP).run("pause-resume-counter;") {
             Ok(res) => match res.status() {
                 200 => return stdout(res.msg()),
                 _ => return stderr(res.msg()),
@@ -111,7 +110,7 @@ fn main() {
     }
 
     if args.is_counter_running {
-        match client.run("is-counter-running;") {
+        match Client::new(IP).run("is-counter-running;") {
             Ok(res) => match res.status() {
                 100 | 102 => return stdout(res.msg()),
                 _ => return stderr(res.msg()),
