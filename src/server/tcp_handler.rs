@@ -36,22 +36,6 @@ static REMAINING_TIME: RwLock<u32> = RwLock::new(0);
 static COUNTER_STATE: RwLock<CounterState> = RwLock::new(CounterState::Pristine);
 
 fn start_pomodoro(request: &Request) -> Response {
-    let (arg1, arg2) = match (request.arg1(), request.arg2()) {
-        (Some(a), Some(b)) => (a, b),
-        _ => return Response::new(StatusCode::BadRequest, Some("Missing args.".to_string())),
-    };
-
-    let seconds = match arg1.parse::<u32>() {
-        Ok(s) => s,
-        Err(_) => {
-            return Response::new(
-                StatusCode::BadRequest,
-                Some("Invalid time format.".to_string()),
-            )
-        }
-    };
-
-    let callback_with_args = arg2.to_string();
 
     match COUNTER_STATE.try_read() {
         Ok(cs) => match *cs {
@@ -70,6 +54,25 @@ fn start_pomodoro(request: &Request) -> Response {
             )
         }
     }
+
+
+    let (arg1, arg2) = match (request.arg1(), request.arg2()) {
+        (Some(a), Some(b)) => (a, b),
+        _ => return Response::new(StatusCode::BadRequest, Some("Missing args.".to_string())),
+    };
+
+    let seconds = match arg1.parse::<u32>() {
+        Ok(s) => s,
+        Err(_) => {
+            return Response::new(
+                StatusCode::BadRequest,
+                Some("Invalid time format.".to_string()),
+            )
+        }
+    };
+
+    let callback_with_args = arg2.to_string();
+
 
     {
         let mut rt = REMAINING_TIME.write().unwrap();
