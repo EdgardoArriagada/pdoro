@@ -35,20 +35,13 @@ enum CounterState {
 static REMAINING_TIME: RwLock<u32> = RwLock::new(0);
 static COUNTER_STATE: RwLock<CounterState> = RwLock::new(CounterState::Pristine);
 
-fn get_safe_params(request: &Request) -> Option<(String, String)> {
-    match (request.arg1(), request.arg2()) {
-        (Some(a), Some(b)) => Some((a.to_string(), b.to_string())),
-        (_, _) => None,
-    }
-}
-
 fn start_pomodoro(request: &Request) -> Response {
-    let (raw_seconds, callback_with_args) = match get_safe_params(request) {
-        Some(x) => x,
-        None => return Response::new(StatusCode::BadRequest, Some("Missing args.".to_string())),
+    let (arg1, arg2) = match (request.arg1(), request.arg2()) {
+        (Some(a), Some(b)) => (a, b),
+        _ => return Response::new(StatusCode::BadRequest, Some("Missing args.".to_string())),
     };
 
-    let seconds = match raw_seconds.parse::<u32>() {
+    let seconds = match arg1.parse::<u32>() {
         Ok(s) => s,
         Err(_) => {
             return Response::new(
@@ -57,6 +50,8 @@ fn start_pomodoro(request: &Request) -> Response {
             )
         }
     };
+
+    let callback_with_args = arg2.to_string();
 
     match COUNTER_STATE.try_read() {
         Ok(cs) => match *cs {
