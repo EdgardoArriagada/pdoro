@@ -100,7 +100,6 @@ fn start_pomodoro(request: &Request) -> Response {
                 match *cs {
                     CounterState::Halting => {
                         *rt = 0;
-                        stored_state = CounterState::Pristine;
                     }
                     CounterState::Paused => {
                         i += 1;
@@ -111,7 +110,7 @@ fn start_pomodoro(request: &Request) -> Response {
                     }
                 }
 
-                if i <= 0 {
+                if *rt <= 0 {
                     stored_state = CounterState::Pristine;
                 }
             } // unlock lock 1
