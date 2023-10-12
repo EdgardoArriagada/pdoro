@@ -86,19 +86,21 @@ fn start_pomodoro(request: &Request) -> Response {
             _ => seconds - 1,
         };
 
+        let mut stored_state = CounterState::Running;
+
         loop {
             sleep(1);
             i -= 1;
 
+            // lock 1
             {
                 let mut rt = REMAINING_TIME.write().unwrap();
-                let mut cs = COUNTER_STATE.write().unwrap();
+                let cs = COUNTER_STATE.read().unwrap(); // read for better performance
 
                 match *cs {
                     CounterState::Halting => {
                         *rt = 0;
-                        *cs = CounterState::Pristine;
-                        return;
+                        stored_state = CounterState::Pristine;
                     }
                     CounterState::Paused => {
                         i += 1;
@@ -110,9 +112,20 @@ fn start_pomodoro(request: &Request) -> Response {
                 }
 
                 if i <= 0 {
-                    *cs = CounterState::Pristine;
+                    stored_state = CounterState::Pristine;
+                }
+            } // unlock lock 1
+
+            match stored_state {
+                // match all states asigned to `stored_state` during lock 1
+                CounterState::Pristine => {
+                    {
+                        let mut cs = COUNTER_STATE.write().unwrap();
+                        *cs = CounterState::Pristine;
+                    }
                     break;
                 }
+                _ => {}
             }
         }
 
