@@ -36,7 +36,6 @@ static REMAINING_TIME: RwLock<u32> = RwLock::new(0);
 static COUNTER_STATE: RwLock<CounterState> = RwLock::new(CounterState::Pristine);
 
 fn start_pomodoro(request: &Request) -> Response {
-
     match COUNTER_STATE.try_read() {
         Ok(cs) => match *cs {
             CounterState::Pristine => {}
@@ -55,7 +54,6 @@ fn start_pomodoro(request: &Request) -> Response {
         }
     }
 
-
     let (arg1, arg2) = match (request.arg1(), request.arg2()) {
         (Some(a), Some(b)) => (a, b),
         _ => return Response::new(StatusCode::BadRequest, Some("Missing args.".to_string())),
@@ -72,7 +70,6 @@ fn start_pomodoro(request: &Request) -> Response {
     };
 
     let callback_with_args = arg2.to_string();
-
 
     {
         let mut rt = REMAINING_TIME.write().unwrap();
