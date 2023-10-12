@@ -164,50 +164,46 @@ fn remaining_pomodoro() -> Response {
 }
 
 fn halt_counter() -> Response {
-    {
-        let mut cs = COUNTER_STATE.write().unwrap();
-        match *cs {
-            CounterState::Halting => {
-                return Response::new(
-                    StatusCode::Conflict,
-                    Some("Pomodoro counter already halting...".to_string()),
-                )
-            }
-            CounterState::Pristine => {
-                return Response::new(StatusCode::Conflict, Some("Nothing to halt.".to_string()))
-            }
-            _ => {
-                *cs = CounterState::Halting;
-                return Response::new(
-                    StatusCode::Ok,
-                    Some("Pomodoro counter halting...".to_string()),
-                );
-            }
+    let mut cs = COUNTER_STATE.write().unwrap();
+    match *cs {
+        CounterState::Halting => {
+            return Response::new(
+                StatusCode::Conflict,
+                Some("Pomodoro counter already halting...".to_string()),
+            )
+        }
+        CounterState::Pristine => {
+            return Response::new(StatusCode::Conflict, Some("Nothing to halt.".to_string()))
+        }
+        _ => {
+            *cs = CounterState::Halting;
+            return Response::new(
+                StatusCode::Ok,
+                Some("Pomodoro counter halting...".to_string()),
+            );
         }
     }
 }
 
 fn pause_resume_counter() -> Response {
-    {
-        let mut cs = COUNTER_STATE.write().unwrap();
-        match *cs {
-            CounterState::Running => {
-                *cs = CounterState::Paused;
-                return Response::new(StatusCode::Ok, Some("Pomodoro counter paused.".to_string()));
-            }
-            CounterState::Paused => {
-                *cs = CounterState::Running;
-                return Response::new(
-                    StatusCode::Ok,
-                    Some("Pomodoro counter resumed.".to_string()),
-                );
-            }
-            _ => {
-                return Response::new(
-                    StatusCode::Conflict,
-                    Some("nothing to pause/resume.".to_string()),
-                )
-            }
+    let mut cs = COUNTER_STATE.write().unwrap();
+    match *cs {
+        CounterState::Running => {
+            *cs = CounterState::Paused;
+            return Response::new(StatusCode::Ok, Some("Pomodoro counter paused.".to_string()));
+        }
+        CounterState::Paused => {
+            *cs = CounterState::Running;
+            return Response::new(
+                StatusCode::Ok,
+                Some("Pomodoro counter resumed.".to_string()),
+            );
+        }
+        _ => {
+            return Response::new(
+                StatusCode::Conflict,
+                Some("nothing to pause/resume.".to_string()),
+            )
         }
     }
 }
