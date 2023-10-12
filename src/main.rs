@@ -151,6 +151,5 @@ fn start_daemon_server() {
         Err(e) => eprintln!("Error, {}", e),
     }
 
-    let new_server = Server::new(IP);
-    new_server.run(TCPHandler);
+    Server::new(IP).run(TCPHandler);
 }
