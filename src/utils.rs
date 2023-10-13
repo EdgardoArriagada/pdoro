@@ -50,22 +50,16 @@ pub fn get_time_format(time_str: &str) -> Time {
     let mut has_num = false;
 
     for c in time_str.chars() {
-        if c.is_alphabetic() && !has_num {
-            return Time::new_invalid();
-        }
-
-        has_num = true;
-
         match c {
+            c if c.is_alphabetic() && !has_num => return Time::new_invalid(),
+            c if c.is_numeric() => {
+                has_num = true;
+                result.push(c)
+            }
             'h' | 'H' => return Time::new(TimeFormat::Hours, &result),
             'm' | 'M' => return Time::new(TimeFormat::Minutes, &result),
             's' | 'S' => return Time::new(TimeFormat::Seconds, &result),
-            _ => {
-                if c.is_alphabetic() {
-                    return Time::new_invalid();
-                }
-                result.push(c)
-            }
+            _ => return Time::new_invalid(),
         }
     }
 
