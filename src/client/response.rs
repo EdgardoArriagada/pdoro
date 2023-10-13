@@ -1,11 +1,10 @@
-
-pub struct Res {
+pub struct Response {
     status: u16,
     msg: String,
 }
 
-impl Res {
-    pub fn new(raw_res: &str) -> Res {
+impl Response {
+    pub fn new(raw_res: &str) -> Response {
         let mut parts = raw_res.splitn(2, ' ');
 
         let status = parts.next().unwrap_or("");
@@ -17,7 +16,7 @@ impl Res {
             None => msg,
         };
 
-        Res {
+        Response {
             status,
             msg: msg.to_string(),
         }

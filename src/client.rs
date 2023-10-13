@@ -1,4 +1,4 @@
-use response::Res;
+use response::Response;
 use std::io::{Read, Write};
 use std::net::TcpStream;
 use std::str::from_utf8;
@@ -23,7 +23,7 @@ impl Client {
         }
     }
 
-    pub fn run(&self, request_line: &str) -> Result<Res, ClientError> {
+    pub fn run(&self, request_line: &str) -> Result<Response, ClientError> {
         match TcpStream::connect(&self.addr) {
             Ok(mut stream) => {
                 if let Err(_) = stream.write(request_line.as_bytes()) {
@@ -33,7 +33,7 @@ impl Client {
                 let mut data = Vec::new();
                 match stream.read_to_end(&mut data) {
                     Ok(_) => match from_utf8(&data) {
-                        Ok(raw_res) => Ok(Res::new(raw_res)),
+                        Ok(raw_res) => Ok(Response::new(raw_res)),
                         Err(_) => return Err(ClientError::DecodeError),
                     },
                     Err(_) => Err(ClientError::ReadError),
