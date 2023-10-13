@@ -52,7 +52,6 @@ fn main() {
         });
     }
 
-
     match (args.time, args.callback_with_args) {
         (Some(time), Some(callback_with_args)) => {
             let start_request = get_start_request(&time, &callback_with_args);
