@@ -1,7 +1,6 @@
 use response::Response;
 use std::io::{Read, Write};
 use std::net::TcpStream;
-use std::str::from_utf8;
 
 #[derive(Debug)]
 pub enum ClientError {
@@ -30,12 +29,10 @@ impl Client {
                     return Err(ClientError::WriteError);
                 }
 
-                let mut data = Vec::new();
-                match stream.read_to_end(&mut data) {
-                    Ok(_) => match from_utf8(&data) {
-                        Ok(raw_res) => Ok(Response::new(raw_res)),
-                        Err(_) => return Err(ClientError::DecodeError),
-                    },
+                let mut buffer = Vec::new();
+                match stream.read_to_end(&mut buffer) {
+                    Ok(_) => Response::try_from(&buffer[..]).map_err(|_| ClientError::DecodeError),
+
                     Err(_) => Err(ClientError::ReadError),
                 }
             }

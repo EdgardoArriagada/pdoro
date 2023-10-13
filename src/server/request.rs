@@ -50,7 +50,7 @@ impl<'buf> TryFrom<&'buf [u8]> for Request<'buf> {
 
         let request = match request.rfind(";") {
             Some(i) => &request[..i],
-            None => Err("Request not terminated by ';' char".to_string())?,
+            None => Err("Request not terminated by ';' char".to_owned())?,
         };
 
         let (path, arg1, arg2) = parse_request(&request).ok_or("Invalid request")?;

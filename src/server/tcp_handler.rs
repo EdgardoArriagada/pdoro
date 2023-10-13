@@ -14,13 +14,13 @@ pub struct TCPHandler;
 impl Handler for TCPHandler {
     fn handle_request(&self, request: &Request) -> Response {
         match request.path() {
-            "healthcheck" => Response::new(StatusCode::Ok, Some("I'm alive".to_string())),
+            "healthcheck" => Response::new(StatusCode::Ok, Some("I'm alive".to_owned())),
             "start" => start_pomodoro(request),
             "halt-counter" => halt_counter(),
             "remaining" => remaining_pomodoro(),
             "is-counter-running" => is_counter_running(),
             "pause-resume-counter" => pause_resume_counter(),
-            _ => Response::new(StatusCode::NotFound, Some("Path not found".to_string())),
+            _ => Response::new(StatusCode::NotFound, Some("Path not found".to_owned())),
         }
     }
 }
@@ -42,21 +42,21 @@ fn start_pomodoro(request: &Request) -> Response {
             _ => {
                 return Response::new(
                     StatusCode::Conflict,
-                    Some("Pomodoro already running.".to_string()),
+                    Some("Pomodoro already running.".to_owned()),
                 )
             }
         },
         Err(_) => {
             return Response::new(
                 StatusCode::InternalServerError,
-                Some("Failed to read counter state.".to_string()),
+                Some("Failed to read counter state.".to_owned()),
             )
         }
     }
 
     let (arg1, arg2) = match (request.arg1(), request.arg2()) {
         (Some(a), Some(b)) => (a, b),
-        _ => return Response::new(StatusCode::BadRequest, Some("Missing args.".to_string())),
+        _ => return Response::new(StatusCode::BadRequest, Some("Missing args.".to_owned())),
     };
 
     let seconds = match arg1.parse::<u32>() {
@@ -64,12 +64,12 @@ fn start_pomodoro(request: &Request) -> Response {
         Err(_) => {
             return Response::new(
                 StatusCode::BadRequest,
-                Some("Invalid time format.".to_string()),
+                Some("Invalid time format.".to_owned()),
             )
         }
     };
 
-    let callback_with_args = arg2.to_string();
+    let callback_with_args = arg2.to_owned();
 
     {
         let mut rt = REMAINING_TIME.write().unwrap();
@@ -131,7 +131,7 @@ fn start_pomodoro(request: &Request) -> Response {
         run_callback(&callback_with_args);
     });
 
-    return Response::new(StatusCode::Created, Some("Pomodoro started.".to_string()));
+    return Response::new(StatusCode::Created, Some("Pomodoro started.".to_owned()));
 }
 
 fn run_callback(callback_with_args: &str) {
@@ -145,8 +145,8 @@ fn run_callback(callback_with_args: &str) {
 
 fn parse_callback_with_args(callback_with_args: &str) -> (String, Vec<String>) {
     let mut split = callback_with_args.split(" ");
-    let callback = split.next().unwrap().to_string();
-    let args = split.map(|s| s.to_string()).collect();
+    let callback = split.next().unwrap().to_owned();
+    let args = split.map(|s| s.to_owned()).collect();
 
     return (callback, args);
 }
@@ -169,17 +169,17 @@ fn halt_counter() -> Response {
         CounterState::Halting => {
             return Response::new(
                 StatusCode::Conflict,
-                Some("Pomodoro counter already halting...".to_string()),
+                Some("Pomodoro counter already halting...".to_owned()),
             )
         }
         CounterState::Pristine => {
-            return Response::new(StatusCode::Conflict, Some("Nothing to halt.".to_string()))
+            return Response::new(StatusCode::Conflict, Some("Nothing to halt.".to_owned()))
         }
         _ => {
             *cs = CounterState::Halting;
             return Response::new(
                 StatusCode::Ok,
-                Some("Pomodoro counter halting...".to_string()),
+                Some("Pomodoro counter halting...".to_owned()),
             );
         }
     }
@@ -190,19 +190,19 @@ fn pause_resume_counter() -> Response {
     match *cs {
         CounterState::Running => {
             *cs = CounterState::Paused;
-            return Response::new(StatusCode::Ok, Some("Pomodoro counter paused.".to_string()));
+            return Response::new(StatusCode::Ok, Some("Pomodoro counter paused.".to_owned()));
         }
         CounterState::Paused => {
             *cs = CounterState::Running;
             return Response::new(
                 StatusCode::Ok,
-                Some("Pomodoro counter resumed.".to_string()),
+                Some("Pomodoro counter resumed.".to_owned()),
             );
         }
         _ => {
             return Response::new(
                 StatusCode::Conflict,
-                Some("nothing to pause/resume.".to_string()),
+                Some("nothing to pause/resume.".to_owned()),
             )
         }
     }
@@ -212,7 +212,7 @@ fn is_counter_running() -> Response {
     let state = COUNTER_STATE.read().unwrap();
 
     match *state {
-        CounterState::Pristine => Response::new(StatusCode::Continue, Some("false".to_string())),
-        _ => Response::new(StatusCode::Processing, Some("true".to_string())),
+        CounterState::Pristine => Response::new(StatusCode::Continue, Some("false".to_owned())),
+        _ => Response::new(StatusCode::Processing, Some("true".to_owned())),
     }
 }
