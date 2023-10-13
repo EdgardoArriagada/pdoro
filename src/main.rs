@@ -52,16 +52,6 @@ fn main() {
         });
     }
 
-    if args.start_server {
-        match Client::new(IP).run("healthcheck;") {
-            Ok(_) => return stderr("Pomodoro server already running."),
-            Err(ClientError::ServerNotStarted) => {
-                println!("starting...");
-                start_daemon_server()
-            }
-            Err(e) => return stderr(format!("Error: {:?}", e).as_str()),
-        }
-    }
 
     match (args.time, args.callback_with_args) {
         (Some(time), Some(callback_with_args)) => {
@@ -97,6 +87,17 @@ fn main() {
             100 | 102 => return stdout(res.msg()),
             _ => return stderr(res.msg()),
         });
+    }
+
+    if args.start_server {
+        match Client::new(IP).run("healthcheck;") {
+            Ok(_) => return stderr("Pomodoro server already running."),
+            Err(ClientError::ServerNotStarted) => {
+                println!("starting...");
+                start_daemon_server()
+            }
+            Err(e) => return stderr(format!("Error: {:?}", e).as_str()),
+        }
     }
 
     stderr("No arguments provided.");
