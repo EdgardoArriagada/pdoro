@@ -3,6 +3,7 @@ use std::fs::File;
 mod args;
 mod client;
 mod server;
+mod time;
 mod utils;
 
 use args::Args;
@@ -12,20 +13,18 @@ use daemonize::Daemonize;
 use client::Client;
 use server::tcp_handler::TCPHandler;
 use server::Server;
-use utils::{get_seconds_from_fromat, get_time_format, stderr, stdout, Time};
+use time::{Time, TimeFormat};
+use utils::{stderr, stdout};
 
-use crate::{
-    client::ClientError,
-    utils::{get_clock_from_seconds, TimeFormat},
-};
+use client::ClientError;
 
 static IP: &'static str = "127.0.0.1:3030";
 
 fn main() {
     let args = Args::parse();
 
-    if let Some(time) = args.is_valid_time {
-        match get_time_format(&time) {
+    if let Some(input) = args.is_valid_time {
+        match Time::new(&input) {
             Time {
                 format: TimeFormat::Invalid,
                 ..
@@ -44,7 +43,7 @@ fn main() {
                 }
 
                 let seconds = digits.parse::<u32>().unwrap();
-                let clock = get_clock_from_seconds(&seconds);
+                let clock = Time::get_clock_from_seconds(&seconds);
 
                 match (clock.as_str(), res.status()) {
                     ("00", _) => stdout("No pomodoro timer is running."),
@@ -124,7 +123,7 @@ fn main() {
 }
 
 fn get_start_request(time_arg: &str, callback_with_args: &str) -> String {
-    let seconds = get_seconds_from_fromat(get_time_format(time_arg));
+    let seconds = Time::new(time_arg).get_total_seconds();
 
     if seconds == 0 {
         stderr("Invalid time format.");
