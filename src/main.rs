@@ -18,7 +18,7 @@ use utils::{stderr, stdout};
 
 use client::ClientError;
 
-static IP: &'static str = "127.0.0.1:3030";
+static IP: &'static str = "127.0.0.1:51789";
 
 fn main() {
     let args = Args::parse();
