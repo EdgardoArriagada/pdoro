@@ -53,22 +53,17 @@ impl<'buf> TryFrom<&'buf [u8]> for Request<'buf> {
             None => Err("Request not terminated by ';' char".to_owned())?,
         };
 
-        let (path, arg1, arg2) = parse_request(&request).ok_or("Invalid request")?;
+        let (path, arg1, arg2) = parse_request(&request);
 
-        Ok(Self { path, arg1, arg2 })
+        match path {
+            Some(path) => Ok(Self { path, arg1, arg2 }),
+            None => Err("Invalid request line".to_owned()),
+        }
     }
 }
 
-fn parse_request(request: &str) -> Option<(&str, Option<&str>, Option<&str>)> {
+fn parse_request(request: &str) -> (Option<&str>, Option<&str>, Option<&str>) {
     let mut parts = request.splitn(3, ' ');
 
-    let path = parts.next().unwrap_or("");
-    let arg1 = parts.next().unwrap_or("");
-    let arg2 = parts.next().unwrap_or("");
-
-    match (arg1, arg2) {
-        ("", "") => Some((path, None, None)),
-        (arg1, "") => Some((path, Some(arg1), None)),
-        (arg1, arg2) => Some((path, Some(arg1), Some(arg2))),
-    }
+    (parts.next(), parts.next(), parts.next())
 }
