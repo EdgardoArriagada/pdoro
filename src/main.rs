@@ -18,6 +18,20 @@ use utils::{stderr, stdout};
 
 use client::ClientError;
 
+trait HandledRun {
+    fn safe_run(&self, path: &str, callback: fn(res: &Response) -> ());
+}
+
+impl HandledRun for Client {
+    fn safe_run(&self, path: &str, callback: fn(res: &Response) -> ()) {
+        match self.run(path) {
+            Ok(res) => callback(&res),
+            Err(ClientError::ServerNotStarted) => stderr("No pomodoro timer is running."),
+            Err(e) => stderr(format!("Error: {:?}", e).as_str()),
+        }
+    }
+}
+
 static IP: &'static str = "127.0.0.1:51789";
 
 fn main() {
@@ -34,7 +48,7 @@ fn main() {
     }
 
     if args.remaining {
-        return make_request("remaining;", |res| {
+        return Client::new(IP).safe_run("remaining;", |res| {
             let digits = res.msg();
 
             if digits.is_empty() {
@@ -56,7 +70,7 @@ fn main() {
         (Some(time), Some(callback_with_args)) => {
             let start_request = get_start_request(&time, &callback_with_args);
 
-            return make_request(start_request.as_str(), |res| match res.status() {
+            return Client::new(IP).safe_run(start_request.as_str(), |res| match res.status() {
                 201 => return stdout(res.msg()),
                 _ => return stderr(res.msg()),
             });
@@ -68,21 +82,21 @@ fn main() {
     }
 
     if args.halt_counter {
-        return make_request("halt-counter;", |res| match res.status() {
+        return Client::new(IP).safe_run("halt-counter;", |res| match res.status() {
             200 => return stdout(res.msg()),
             _ => return stderr(res.msg()),
         });
     }
 
     if args.pause_resume_counter {
-        return make_request("pause-resume-counter;", |res| match res.status() {
+        return Client::new(IP).safe_run("pause-resume-counter;", |res| match res.status() {
             200 => return stdout(res.msg()),
             _ => return stderr(res.msg()),
         });
     }
 
     if args.is_counter_running {
-        return make_request("is-counter-running;", |res| match res.status() {
+        return Client::new(IP).safe_run("is-counter-running;", |res| match res.status() {
             100 | 102 => return stdout(res.msg()),
             _ => return stderr(res.msg()),
         });
@@ -100,14 +114,6 @@ fn main() {
     }
 
     stderr("No arguments provided.");
-}
-
-fn make_request(path: &str, callback: fn(res: &Response) -> ()) {
-    match Client::new(IP).run(path) {
-        Ok(res) => callback(&res),
-        Err(ClientError::ServerNotStarted) => stderr("No pomodoro timer is running."),
-        Err(e) => stderr(format!("Error: {:?}", e).as_str()),
-    }
 }
 
 fn get_start_request(time_arg: &str, callback_with_args: &str) -> String {
