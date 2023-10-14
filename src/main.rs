@@ -37,16 +37,6 @@ static IP: &'static str = "127.0.0.1:51789";
 fn main() {
     let args = Args::parse();
 
-    if let Some(input) = args.is_valid_time {
-        match Time::new(&input) {
-            Time {
-                format: TimeFormat::Invalid,
-                ..
-            } => return stdout("false"),
-            _ => return stdout("true"),
-        }
-    }
-
     if args.remaining {
         return Client::new(IP).safe_run("remaining;", |res| {
             let digits = res.msg();
@@ -64,6 +54,16 @@ fn main() {
                 _ => stdout(&clock),
             }
         });
+    }
+
+    if let Some(input) = args.is_valid_time {
+        match Time::new(&input) {
+            Time {
+                format: TimeFormat::Invalid,
+                ..
+            } => return stdout("false"),
+            _ => return stdout("true"),
+        }
     }
 
     match (args.time, args.callback_with_args) {
