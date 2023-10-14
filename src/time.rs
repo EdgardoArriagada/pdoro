@@ -61,7 +61,6 @@ impl Time {
         let seconds = seconds % 60;
 
         match (hours, minutes, seconds) {
-            (0, 0, 0) => return String::from("00"),
             (0, 0, _) => return format!("{:02}", seconds),
             (0, _, _) => return format!("{:02}:{:02}", minutes, seconds),
             _ => return format!("{:02}:{:02}:{:02}", hours, minutes, seconds),
