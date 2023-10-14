@@ -39,11 +39,10 @@ fn main() {
 
     if args.remaining {
         return Client::new(IP).safe_run("remaining;", |res| {
-            let digits = res.msg();
-
-            if digits.is_empty() {
-                return stdout("No pomodoro timer is running.");
-            }
+            let digits = match res.valid_msg() {
+                Ok(m) => m,
+                Err(_) => return stderr("Failed to retrieve remaining time."),
+            };
 
             let seconds = digits.parse::<u32>().unwrap();
             let clock = Time::get_clock_from_seconds(&seconds);

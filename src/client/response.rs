@@ -13,6 +13,14 @@ impl Response {
     pub fn msg(&self) -> &str {
         &self.msg
     }
+
+    pub fn valid_msg(&self) -> Result<&str, &str> {
+        if self.msg.is_empty() {
+            Err(&self.msg)
+        } else {
+            Ok(&self.msg)
+        }
+    }
 }
 
 impl TryFrom<&[u8]> for Response {
