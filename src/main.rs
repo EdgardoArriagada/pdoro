@@ -55,6 +55,13 @@ fn main() {
         });
     }
 
+    if args.is_counter_running {
+        return Client::new(IP).safe_run("is-counter-running;", |res| match res.status() {
+            100 | 102 => return stdout(res.msg()),
+            _ => return stderr(res.msg()),
+        });
+    }
+
     if let Some(input) = args.is_valid_time {
         match Time::new(&input) {
             Time {
@@ -80,13 +87,6 @@ fn main() {
         _ => {}
     }
 
-    if args.halt_counter {
-        return Client::new(IP).safe_run("halt-counter;", |res| match res.status() {
-            200 => return stdout(res.msg()),
-            _ => return stderr(res.msg()),
-        });
-    }
-
     if args.pause_resume_counter {
         return Client::new(IP).safe_run("pause-resume-counter;", |res| match res.status() {
             200 => return stdout(res.msg()),
@@ -94,9 +94,9 @@ fn main() {
         });
     }
 
-    if args.is_counter_running {
-        return Client::new(IP).safe_run("is-counter-running;", |res| match res.status() {
-            100 | 102 => return stdout(res.msg()),
+    if args.halt_counter {
+        return Client::new(IP).safe_run("halt-counter;", |res| match res.status() {
+            200 => return stdout(res.msg()),
             _ => return stderr(res.msg()),
         });
     }
