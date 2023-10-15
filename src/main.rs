@@ -26,7 +26,7 @@ impl HandledRun for Client {
     fn safe_run(&self, path: &str, callback: fn(res: &Response) -> ()) {
         match self.run(path) {
             Ok(res) => callback(&res),
-            Err(ClientError::ServerNotStarted) => stderr("No pomodoro timer is running."),
+            Err(ClientError::ServerNotStarted) => stderr("Pdoro server has not been started."),
             Err(e) => stderr(format!("Error: {:?}", e).as_str()),
         }
     }
