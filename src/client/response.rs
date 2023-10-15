@@ -31,10 +31,10 @@ impl TryFrom<&[u8]> for Response {
 
         let mut parts = response.splitn(2, ' ');
 
-        let status = parts.next().unwrap_or("");
+        let status = parts.next().unwrap_or("422");
         let msg = parts.next().unwrap_or("");
 
-        let status = status.parse::<u16>().unwrap_or(500);
+        let status = status.parse::<u16>().expect("Could not parse status code");
         let msg = match msg.rfind(';') {
             Some(i) => &msg[..i],
             None => "",

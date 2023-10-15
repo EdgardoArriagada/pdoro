@@ -44,7 +44,10 @@ fn main() {
                 Err(_) => return stderr("Failed to retrieve remaining time."),
             };
 
-            let seconds = digits.parse::<u32>().unwrap();
+            let seconds = digits
+                .parse::<u32>()
+                .expect("Failed to parse remaining time.");
+
             let clock = Time::get_clock_from_seconds(&seconds);
 
             match (clock.as_str(), res.status()) {
@@ -126,8 +129,8 @@ fn get_start_request(time_arg: &str, callback_with_args: &str) -> String {
 }
 
 fn start_daemon_server() {
-    let stdout_file = File::create("/tmp/pdoro.out").unwrap();
-    let stderr_file = File::create("/tmp/pdoro.err").unwrap();
+    let stdout_file = File::create("/tmp/pdoro.out").expect("Failed to create stdout file.");
+    let stderr_file = File::create("/tmp/pdoro.err").expect("Failed to create stderr file.");
 
     let daemonize = Daemonize::new()
         .working_directory("/tmp")

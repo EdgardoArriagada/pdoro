@@ -35,7 +35,7 @@ impl Time {
     pub fn parsed(format: TimeFormat, value: &str) -> Self {
         Self {
             format,
-            value: value.parse::<u32>().unwrap(),
+            value: value.parse::<u32>().expect("Failed to parse time"),
         }
     }
 
