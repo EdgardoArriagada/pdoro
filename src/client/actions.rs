@@ -28,10 +28,7 @@ static IP: &'static str = "127.0.0.1:51789";
 
 pub fn remaining() {
     Client::new(IP).safe_run("remaining;", |res| {
-        let digits = match res.valid_msg() {
-            Ok(m) => m,
-            Err(_) => return stderr("Failed to retrieve remaining time."),
-        };
+        let digits = res.valid_msg().expect("Failed to retrieve remaining time.");
 
         let seconds = digits
             .parse::<u32>()

@@ -15,10 +15,9 @@ impl Response {
     }
 
     pub fn valid_msg(&self) -> Result<&str, &str> {
-        if self.msg.is_empty() {
-            Err(&self.msg)
-        } else {
-            Ok(&self.msg)
+        match self.msg().is_empty() {
+            false => Ok(self.msg()),
+            true => Err("No message"),
         }
     }
 }
