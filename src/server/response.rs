@@ -10,7 +10,7 @@ pub struct Response {
 
 impl Response {
     pub fn new(status_code: StatusCode, body: Option<String>) -> Self {
-        Response { status_code, body }
+        Self { status_code, body }
     }
 
     pub fn send(&self, stream: &mut impl Write) -> IoResult<()> {
