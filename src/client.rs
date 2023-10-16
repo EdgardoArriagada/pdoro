@@ -41,4 +41,5 @@ impl Client {
     }
 }
 
+pub mod actions;
 pub mod response;
