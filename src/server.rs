@@ -31,7 +31,7 @@ impl Server {
         loop {
             match listener.accept() {
                 Ok((mut stream, _)) => {
-                    let mut buffer = [0 as u8; 1024];
+                    let mut buffer = [0 as u8; 256];
                     match stream.read(&mut buffer) {
                         Ok(_) => {
                             let response = match Request::try_from(&buffer[..]) {
@@ -52,9 +52,9 @@ impl Server {
     }
 }
 
+pub mod controllers;
 pub mod request;
 pub mod response;
+pub mod router;
 pub mod status_code;
 pub mod tcp_handler;
-pub mod controllers;
-pub mod router;
