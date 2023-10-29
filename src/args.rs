@@ -16,7 +16,7 @@ pub struct Args {
     #[clap(long, short)]
     pub remaining: bool,
 
-    /// start pdoro sercer
+    /// start pdoro server
     #[clap(long, short)]
     pub start_server: bool,
 
@@ -33,6 +33,6 @@ pub struct Args {
     pub is_valid_time: Option<String>,
 
     /// check if counter is running
-    #[clap(long)]
+    #[clap(long, short)]
     pub is_counter_running: bool,
 }

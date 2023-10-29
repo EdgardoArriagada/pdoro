@@ -1,0 +1,104 @@
+#compdef pdoro
+
+_pdoro_global_state() {
+  local -A start=(
+    [-t]=1
+    [--time]=1
+    [-c]=1
+    [--callback-with-args]=1
+  )
+
+  # get last word
+  local word=${@[-1]}
+  alert "le word: ${word}";
+
+  # if last word is a flag, then return 'nothing'
+  if [[ $word =~ '^\-' ]];
+    then return 0
+  fi
+
+  for word in $@; do
+    if [[ -n "${start[$word]}" ]]
+      then printf 'start'; return 0
+    fi
+  done
+}
+
+_pdoro_filter_used() {
+  local -A siblings=(
+    [-t]=--time
+    [--time]=-t
+
+    [-c]=--callback-with-args
+    [--callback-with-args]=-c
+  )
+
+  local -A used=()
+  local -a result=()
+
+  for word in $@; do
+    word=${word%%\[*}
+    local sibling=${siblings[$word]}
+    
+    if [[ -z "${used[$word]}" || -z "${used[$sibling]}" ]]; then
+      used[${word}]=1
+      used[${sibling}]=1
+      result+=($word)
+    fi
+  done
+
+  print -r -- ${(qq)result}
+}
+
+_pdoro() {
+  local -a pdoro_start_args=(
+    {-t,--time}'[time duration of session]: :->time'
+    {-c,--callback-with-args}'[callback program with args]: :->callback'
+  )
+
+  local -a pdoro_args=(
+    {-r,--remaining}'[remaining duration of session]'
+    {-s,--start-server}'[start pdoro server]'
+    --halt-counter'[halt counter]'
+    {-p,--pause-resume-counter}'[pause or resume counter]'
+    --is-valid-time'[validate time duration]: :->is_time'
+    {-i,--is-counter-running}'[check if counter is running]'
+    {-h,--help}'[show help]'
+    {-v,--version}'[show version]'
+  )
+
+  pdoro_args+=(${pdoro_start_args[@]})
+
+  local -a result=(${pdoro_args[@]})
+
+  alert "le state: ${state}";
+
+  if [[ -n "$state" ]]
+    then
+      alert "then state"
+      case $state in
+          time|is_time) 
+            _values 'flags' 25m
+            ;;
+          callback) ;;
+      esac
+    else
+      alert "else state"
+      local global_state=`_pdoro_global_state ${words[@]}`
+      alert "global state: ${global_state}"
+
+      case $global_state in
+        start)
+          result=("${(@Q)${(z)$(_pdoro_filter_used ${pdoro_start_args[@]})}}")
+          ;;
+      esac
+  fi
+
+      alert "continue"
+
+  _arguments -C -s -S : $result
+
+}
+
+
+_pdoro $@
