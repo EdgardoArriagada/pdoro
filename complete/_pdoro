@@ -19,12 +19,11 @@ _pdoro_does_array_contains() {
 
   for word in ${array[@]}; do
     if [[ "$word" == "$entry" ]]; then
-      printf true
-      return
+      return 0
     fi
   done
 
-  printf false
+  return 1
 }
 
 _pdoro() {
@@ -60,7 +59,7 @@ _pdoro() {
 
   for word in ${words[@]}; do
     result=(${start_group[@]})
-    if `_pdoro_does_array_contains 'start_group_keys' $word`
+    if _pdoro_does_array_contains 'start_group_keys' $word
       then break # we using start_group, skip single_use_group
     fi
     result+=(${single_use_group[@]})
