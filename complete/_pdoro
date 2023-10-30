@@ -1,12 +1,11 @@
 #compdef pdoro
 
-_pdoro_get_group_arg_keys() {
+_pdoro_argkeysof() {
   local -a group=(${(P)1})
   local -a result
   for entry in ${group[@]}; do
     if [[ "$entry" =~ '^\-' ]]; then # is arg
-      entry=${entry%%\[*} # get arg only
-      result+=($entry)
+      result+=(${entry%%\[*}) # get key only
     fi
   done
 
@@ -15,11 +14,11 @@ _pdoro_get_group_arg_keys() {
 
 _pdoro_does_array_contains() {
   local -a array=(${(P)1})
-  local entry=$2
+  local input=$2
 
-  for word in ${array[@]}; do
-    if [[ "$word" == "$entry" ]]; then
-      return 0
+  for entry in ${array[@]}; do
+    if [[ "$entry" == "$input" ]]
+      then return 0
     fi
   done
 
@@ -53,13 +52,13 @@ _pdoro() {
       callback) ;;
   esac
 
-  local -a start_group_keys=( $(_pdoro_get_group_arg_keys start_group) )
+  local -a start_group_keys=( $(_pdoro_argkeysof start_group) )
 
   local -a result
 
   for word in ${words[@]}; do
     result=(${start_group[@]})
-    if _pdoro_does_array_contains 'start_group_keys' $word
+    if _pdoro_does_array_contains start_group_keys $word
       then break # we using start_group, skip single_use_group
     fi
     result+=(${single_use_group[@]})
