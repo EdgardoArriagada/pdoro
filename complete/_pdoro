@@ -3,13 +3,14 @@
 _pdoro_argkeysof() {
   local -a group=(${(P)1})
   local -a result
+
   for entry in ${group[@]}; do
-    if [[ "$entry" =~ '^\-' ]]; then # is arg
-      result+=(${entry%%\[*}) # get key only
+    if [[ "$entry" =~ '^\-' ]] # is arg
+      then result+=(${entry%%\[*}) # get key only
     fi
   done
 
-  print -rl -- "${result[@]}"
+  print -rl -- ${result[@]}
 }
 
 _pdoro_does_array_contains() {
