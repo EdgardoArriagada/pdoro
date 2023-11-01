@@ -1,31 +1,5 @@
 #compdef pdoro
 
-_pdoro_argkeysof() {
-  local -a group=(${(P)1})
-  local -a result
-
-  for entry in ${group[@]}; do
-    if [[ "$entry" =~ '^\-' ]] # is arg
-      then result+=(${entry%%\[*}) # get key only
-    fi
-  done
-
-  print -rl -- ${result[@]}
-}
-
-_pdoro_does_array_contains() {
-  local -a array=(${(P)1})
-  local input=$2
-
-  for entry in ${array[@]}; do
-    if [[ "$entry" == "$input" ]]
-      then return 0
-    fi
-  done
-
-  return 1
-}
-
 _pdoro() {
   local -a start_group=(
     + '(time)'
@@ -35,7 +9,7 @@ _pdoro() {
   )
 
   local -a single_use_group=(
-    + '(exclusive)'
+    + '(single-use)'
     '(: * -)'{-r,--remaining}'[remaining duration of session]'
     '(: * -)'{-s,--start-server}'[start pdoro server]'
     '(: * -)'--halt-counter'[halt counter]'
@@ -66,6 +40,32 @@ _pdoro() {
   done
   
   _arguments -C -s -S : $result
+}
+
+_pdoro_argkeysof() {
+  local -a group=(${(P)1})
+  local -a result
+
+  for entry in ${group[@]}; do
+    if [[ "$entry" =~ '^\-' ]] # is arg
+      then result+=(${entry%%\[*}) # get key only
+    fi
+  done
+
+  print -rl -- ${result[@]}
+}
+
+_pdoro_does_array_contains() {
+  local -a array=(${(P)1})
+  local input=$2
+
+  for entry in ${array[@]}; do
+    if [[ "$entry" == "$input" ]]
+      then return 0
+    fi
+  done
+
+  return 1
 }
 
 
