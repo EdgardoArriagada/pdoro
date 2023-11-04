@@ -15,7 +15,7 @@ impl Time {
 
         match Self::is_valid_len(&time) {
             true => Ok(time),
-            false => Err("Invalid length: Timer must be less than 10 hours".to_string()),
+            false => Err("Invalid length: input must be in range (1s < input < 10h)".to_string()),
         }
     }
 
@@ -41,6 +41,10 @@ impl Time {
     }
 
     fn is_valid_len(time: &Self) -> bool {
+        if time.value == 0 {
+            return false;
+        }
+
         match time.format {
             TimeFormat::Hours => time.value < 10,
             TimeFormat::Minutes => time.value < 60 * 10,
@@ -55,7 +59,7 @@ impl Time {
         }
     }
 
-    pub fn get_total_seconds(&self) -> u32 {
+    pub fn get_seconds(&self) -> u32 {
         match self.format {
             TimeFormat::Hours => self.value * 60 * 60,
             TimeFormat::Minutes => self.value * 60,

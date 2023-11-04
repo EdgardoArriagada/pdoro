@@ -96,11 +96,7 @@ pub fn start_server() {
 }
 
 fn get_start_request(time_arg: &str, callback_with_args: &str) -> Result<String, String> {
-    let seconds = Time::new(time_arg)?.get_total_seconds();
-
-    if seconds == 0 {
-        stderr("Invalid time format.");
-    }
+    let seconds = Time::new(time_arg)?.get_seconds();
 
     Ok(format!("start {} {};", seconds, callback_with_args))
 }
