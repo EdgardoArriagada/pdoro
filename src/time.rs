@@ -2,7 +2,6 @@ pub enum TimeFormat {
     Hours,
     Minutes,
     Seconds,
-    Invalid,
 }
 
 pub struct Time {
@@ -11,25 +10,42 @@ pub struct Time {
 }
 
 impl Time {
-    pub fn new(input: &str) -> Self {
+    pub fn new(input: &str) -> Result<Self, String> {
+        let time = Self::input_to_time(input)?;
+
+        match Self::is_valid_len(&time) {
+            true => Ok(time),
+            false => Err("Invalid length: Timer must be less than 10 hours".to_string()),
+        }
+    }
+
+    fn input_to_time(input: &str) -> Result<Self, String> {
         let mut value = String::new();
         let mut has_num = false;
 
         for c in input.chars() {
             match c {
-                c if c.is_alphabetic() && !has_num => return Self::invalid(),
+                c if c.is_alphabetic() && !has_num => return Err("Invalid time format".to_string()),
                 c if c.is_numeric() => {
                     has_num = true;
                     value.push(c)
                 }
-                'h' | 'H' => return Self::parsed(TimeFormat::Hours, &value),
-                'm' | 'M' => return Self::parsed(TimeFormat::Minutes, &value),
-                's' | 'S' => return Self::parsed(TimeFormat::Seconds, &value),
-                _ => return Self::invalid(),
+                'h' | 'H' => return Ok(Self::parsed(TimeFormat::Hours, &value)),
+                'm' | 'M' => return Ok(Self::parsed(TimeFormat::Minutes, &value)),
+                's' | 'S' => return Ok(Self::parsed(TimeFormat::Seconds, &value)),
+                _ => return Err("Invalid time format".to_string()),
             }
         }
 
-        Self::invalid()
+        Err("Invalid time format".to_string())
+    }
+
+    fn is_valid_len(time: &Self) -> bool {
+        match time.format {
+            TimeFormat::Hours => time.value < 10,
+            TimeFormat::Minutes => time.value < 60 * 10,
+            TimeFormat::Seconds => time.value < 60 * 60 * 10,
+        }
     }
 
     pub fn parsed(format: TimeFormat, value: &str) -> Self {
@@ -39,19 +55,11 @@ impl Time {
         }
     }
 
-    pub fn invalid() -> Self {
-        Self {
-            format: TimeFormat::Invalid,
-            value: 0,
-        }
-    }
-
     pub fn get_total_seconds(&self) -> u32 {
         match self.format {
             TimeFormat::Hours => self.value * 60 * 60,
             TimeFormat::Minutes => self.value * 60,
             TimeFormat::Seconds => self.value,
-            TimeFormat::Invalid => 0,
         }
     }
 

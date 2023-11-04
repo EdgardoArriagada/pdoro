@@ -5,7 +5,7 @@ use daemonize::Daemonize;
 use crate::client::{response::Response, Client};
 use crate::server::tcp_handler::TCPHandler;
 use crate::server::Server;
-use crate::time::{Time, TimeFormat};
+use crate::time::Time;
 use crate::utils::{stderr, stdout};
 
 use super::ClientError;
@@ -53,16 +53,16 @@ pub fn is_counter_running() {
 
 pub fn is_valid_time(input: &str) {
     match Time::new(&input) {
-        Time {
-            format: TimeFormat::Invalid,
-            ..
-        } => return stdout("false"),
-        _ => return stdout("true"),
+        Ok(_) => stdout("true"),
+        Err(_) => stdout("false"),
     }
 }
 
 pub fn start(time: &str, callback_with_args: &str) {
-    let start_request = get_start_request(time, callback_with_args);
+    let start_request = match get_start_request(time, callback_with_args) {
+        Ok(req) => req,
+        Err(e) => return stderr(e.as_str()),
+    };
 
     Client::new(IP).safe_run(start_request.as_str(), |res| match res.status() {
         201 => stdout(res.msg()),
@@ -95,14 +95,14 @@ pub fn start_server() {
     }
 }
 
-fn get_start_request(time_arg: &str, callback_with_args: &str) -> String {
-    let seconds = Time::new(time_arg).get_total_seconds();
+fn get_start_request(time_arg: &str, callback_with_args: &str) -> Result<String, String> {
+    let seconds = Time::new(time_arg)?.get_total_seconds();
 
     if seconds == 0 {
         stderr("Invalid time format.");
     }
 
-    format!("start {} {};", seconds, callback_with_args)
+    Ok(format!("start {} {};", seconds, callback_with_args))
 }
 
 fn start_daemon_server() {
